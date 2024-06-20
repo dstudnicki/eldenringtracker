@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 async function getData() {
-    const response = await fetch("https://eldenring.fanapis.com/api/bosses?limit=100");
+    const response = await fetch("http://localhost:3000/api/bosses");
 
     if (!response.ok) {
         // This will activate the closest `error.js` Error Boundary
@@ -19,7 +19,7 @@ export default async function BossesPage() {
     return (
         <main className="flex flex-col px-4 lg:px-8 xl:px-24">
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 grid-rows-1 gap-4">
-                {data.data.map((boss: any) => (
+                {data.map((boss: any) => (
                     <Card key={boss.id}>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-md font-medium">{boss.name}</CardTitle>

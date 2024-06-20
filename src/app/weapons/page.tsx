@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 async function getData() {
-    const response = await fetch("https://eldenring.fanapis.com/api/weapons");
+    const response = await fetch("http://localhost:3000/api/weapons");
 
     if (!response.ok) {
         // This will activate the closest `error.js` Error Boundary
@@ -19,7 +19,7 @@ export default async function WeaponsPage() {
     return (
         <main className="flex flex-col px-4 lg:px-8 xl:px-24">
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 grid-rows-1 gap-4">
-                {data.data.map((weapon: any) => (
+                {data.map((weapon: any) => (
                     <Card key={weapon.id}>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-md font-medium">{weapon.name}</CardTitle>
