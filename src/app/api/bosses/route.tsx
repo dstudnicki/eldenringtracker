@@ -9,7 +9,6 @@ export async function GET() {
         const db = client.db("elden-ring");
         const collection = db.collection("bosses");
         const bosses = await collection.find().toArray();
-        console.log(bosses);
         return NextResponse.json(bosses);
     } catch (error) {
         console.error("Error processing GET request:", error);

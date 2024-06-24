@@ -1,11 +1,8 @@
-"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Home() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-
     return (
         <main className="flex flex-col px-4 lg:px-8 xl:px-24">
             <h1 className="mb-6 mt-6 sm:mt-0 font-bold text-3xl">Dashboard</h1>

@@ -1,24 +1,12 @@
 "use client";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-// async function getData() {
-//     const response = await fetch("http://localhost:3000/api/bosses");
-
-//     if (!response.ok) {
-//         // This will activate the closest `error.js` Error Boundary
-//         throw new Error("Failed to fetch data");
-//     }
-
-//     return response.json();
-// }
-
 export default function BossesPage() {
-    // const data = await getData();
-    // console.log(data);
-
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
 
@@ -27,7 +15,7 @@ export default function BossesPage() {
         setData(data.data);
     };
 
-    const toggleSelected = (id: number) => {
+    const toggleSelected = (id: string) => {
         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
     };
 
@@ -40,15 +28,22 @@ export default function BossesPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 grid-rows-1 gap-4">
                 {data.map((boss: any) =>
                     !isSelected[boss.id] ? (
-                        <Card key={boss.id}>
+                        <Card key={boss.id} className="flex flex-col justify-between">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-md font-medium">{boss.name}</CardTitle>
                             </CardHeader>
                             <CardContent className="pb-0 text-2xl font-bold">
-                                {boss.image ? <Image className="rounded-md" width={300} height={300} src={boss.image} alt="Picture of boss" /> : <p>No image</p>}
+                                {boss.image ? <Image className="rounded-md max-h-40 w-full" width={300} height={300} src={boss.image} alt="Picture of boss" /> : <p>No image found.</p>}
                             </CardContent>
-                            <CardContent className="text-xs text-muted-foreground">{boss.location}</CardContent>
-                            <button onClick={() => toggleSelected(boss.id)}>Check</button>
+                            <CardContent className="text-xs mt-2">
+                                <span className="font-bold">Location:</span>
+                                <span className="text-muted-foreground"> {boss.location}</span>
+                            </CardContent>
+                            <CardContent className="flex justify-end">
+                                <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss.id)}>
+                                    <Check className="h-4 w-4" />
+                                </Button>
+                            </CardContent>
                         </Card>
                     ) : null
                 )}
