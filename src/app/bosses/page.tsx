@@ -15,7 +15,9 @@ export default function BossesPage() {
         setData(data.data);
     };
 
-    const toggleSelected = (id: string) => {
+    const toggleSelected = async (id: string) => {
+        const response = await axios.patch("http://localhost:3000/api/bosses", { id });
+
         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
     };
 

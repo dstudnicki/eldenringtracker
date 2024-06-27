@@ -21,11 +21,12 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
     }, [pathname]);
 
     return (
-        <div className="hidden sm:flex justify-evenly px-4 lg:px-8 xl:px-24 py-20">
+        <div className="hidden sm:flex justify-evenly px-4 lg:px-8 xl:px-24 py-16">
             <nav className={cn("flex w-full items-center justify-start space-x-4 lg:space-x-6", className)} {...props}>
+                <span className="text-2xl font-bold">Elden Ring Tracker</span>
                 <Link href="/" legacyBehavior>
                     <a onClick={() => setSelectedLink("/")} className={linkClass("/")}>
-                        Dashboard
+                        Home
                     </a>
                 </Link>
                 <Link href="/bosses" legacyBehavior>
