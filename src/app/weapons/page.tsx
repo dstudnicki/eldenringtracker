@@ -17,8 +17,8 @@ export default async function WeaponsPage() {
     console.log(data);
 
     return (
-        <main className="flex flex-col px-4 lg:px-8 xl:px-24">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 grid-rows-1 gap-4">
+        <main className="flex flex-col px-4 lg:px-8 xl:px-80">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 grid-rows-1 gap-4">
                 {data.map((weapon: any) => (
                     <Card key={weapon.id}>
                         <CardHeader className="pb-2">
