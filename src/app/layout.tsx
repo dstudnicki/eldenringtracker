@@ -7,7 +7,7 @@ import Navbar from "@/components/navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "Elden Ring Tools",
+    title: "Elden Ring Tracker",
     description: "Elden Ring Tools for the community",
 };
 

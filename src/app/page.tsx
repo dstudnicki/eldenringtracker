@@ -11,7 +11,7 @@ export default function Home() {
             <section className="flex justify-between items-center">
                 <div>
                     <h1 className="mb-1 font-bold text-7xl">Track your Elden Ring progress</h1>
-                    <p className="mt-6 text-lg text-muted-foreground">Make your journey through the Lands Between easier by tracking your game progress</p>
+                    <p className="mt-6 text-lg text-muted-foreground">Make your journey through the Lands Between easier by tracking your in game progress.</p>
                     <Button className="mt-6 text-xl p-8 rounded-full">Get started</Button>
                 </div>
                 <div>

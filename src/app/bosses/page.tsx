@@ -31,13 +31,13 @@ export default function BossesPage() {
                 {data.map((boss: any) =>
                     !isSelected[boss.id] ? (
                         <Card key={boss.id} className="flex flex-col justify-between">
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-md font-medium">{boss.name}</CardTitle>
+                            <CardHeader>
+                                <CardTitle className="text-xl font-bold">{boss.name}</CardTitle>
                             </CardHeader>
                             <CardContent className="pb-0 text-2xl font-bold">
                                 {boss.image ? <Image className="rounded-md max-h-40 w-full" width={300} height={300} src={boss.image} alt="Picture of boss" /> : <p>No image found.</p>}
                             </CardContent>
-                            <CardContent className="text-xs mt-2">
+                            <CardContent className="text-sm mt-2">
                                 <span className="font-bold">Location:</span>
                                 <span className="text-muted-foreground"> {boss.location}</span>
                             </CardContent>

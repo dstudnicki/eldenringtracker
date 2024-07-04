@@ -4,7 +4,11 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: "https", // or http
-                hostname: "eldenring.fanapis.com", // if your website has no www, drop it
+                hostname: "eldenring.fanapis.com",
+            },
+            {
+                protocol: "https", // or http
+                hostname: "scdn.veryfi.com",
             },
         ],
     },
