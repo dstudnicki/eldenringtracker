@@ -9,19 +9,19 @@ import Footer from "@/components/footer";
 export default function Home() {
     return (
         <>
-            <main className="px-4 lg:px-8 xl:px-80">
+            <main className="px-4 sm:px-8 lg:px-12 xl:px-0 xl:container">
                 <section className="flex justify-between items-center">
                     <div>
                         <h1 className="mb-1 font-bold text-7xl">Track your Elden Ring progress</h1>
                         <p className="mt-6 text-lg text-muted-foreground">Make your journey through the Lands Between easier by tracking your in game progress.</p>
                         <Button className="mt-6 text-xl p-8 rounded-full">Get started</Button>
                     </div>
-                    <div>
+                    <div className="hidden md:block">
                         <Image src={hero} width={800} height={800} alt="hero" />
                     </div>
                 </section>
                 <div className="mt-20">
-                    <Card className="flex justify-evenly rounded-3xl border p-8 shadow-lg">
+                    <Card className="grid gap-4 md:flex justify-evenly rounded-3xl border p-0 md:p-4 lg:p-8 shadow-lg">
                         <div className="p-4">
                             <CardHeader>
                                 <CardTitle className="text-3xl font-bold">Bosses Defeated</CardTitle>
