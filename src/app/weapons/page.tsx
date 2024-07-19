@@ -14,7 +14,6 @@ async function getData() {
 
 export default async function WeaponsPage() {
     const data = await getData();
-    console.log(data);
 
     return (
         <main className="flex flex-col px-4 sm:px-8 lg:px-12 xl:px-0 xl:container">
