@@ -25,17 +25,17 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
             <nav className={cn("flex w-full items-center justify-start", className)} {...props}>
                 <span className="text-2xl font-bold">Elden Ring Tracker</span>
                 <div className="ms-16 space-x-4 lg:space-x-6">
-                    <Link href="/" legacyBehavior>
+                    <Link href="./" legacyBehavior>
                         <a onClick={() => setSelectedLink("/")} className={linkClass("/")}>
                             Home
                         </a>
                     </Link>
-                    <Link href="/bosses" legacyBehavior>
+                    <Link href="./bosses" legacyBehavior>
                         <a onClick={() => setSelectedLink("/bosses")} className={linkClass("/bosses")}>
                             Bosses
                         </a>
                     </Link>
-                    <Link href="/weapons" legacyBehavior>
+                    <Link href="./weapons" legacyBehavior>
                         <a onClick={() => setSelectedLink("/weapons")} className={linkClass("/weapons")}>
                             Weapons
                         </a>
