@@ -27,7 +27,7 @@ export default function Home() {
                                 <CardTitle className="text-3xl font-bold">Bosses Defeated</CardTitle>
                             </CardHeader>
                             <CardContent className="text-lg font-light">
-                                Keep track of the formidable foes you've conquered. Mark each boss as you defeat them and see your progress through the game's toughest challenges.
+                                Keep track of the formidable foes you have conquered. Mark each boss as you defeat them and see your progress through the games toughest challenges.
                             </CardContent>
                         </div>
                         <div className="p-4">
@@ -35,7 +35,7 @@ export default function Home() {
                                 <CardTitle className="text-3xl font-bold">Items Collected</CardTitle>
                             </CardHeader>
                             <CardContent className="text-lg font-light">
-                                Organize and monitor the powerful artifacts and essential items you've gathered. Ensure you don't miss any key equipment on your journey.
+                                Organize and monitor the powerful artifacts and essential items you have gathered. Ensure you dont miss any key equipment on your journey.
                             </CardContent>
                         </div>
                         <div className="p-4">
