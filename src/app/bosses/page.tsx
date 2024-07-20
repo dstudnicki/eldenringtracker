@@ -33,11 +33,11 @@ export default function BossesPage() {
     const fetchData = async () => {
         const data = await axios.get(`${baseURL}/api/bosses`);
         setData(data.data);
-    };
 
-    if (!baseURL) {
-        return null;
-    }
+        if (!baseURL) {
+            return null;
+        }
+    };
 
     const toggleSelected = async (id: string, name: string) => {
         await axios.patch(`${baseURL}/api/bosses`, { id, name });
