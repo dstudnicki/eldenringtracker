@@ -27,13 +27,17 @@ export default function BossesPage() {
 
     const locationsForFilter = filteredLocations(dataLocations);
 
-    const baseURL = process.env.NEXT_LOCAL_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     console.log(baseURL);
 
     const fetchData = async () => {
         const data = await axios.get(`${baseURL}/api/bosses`);
         setData(data.data);
     };
+
+    if (!baseURL) {
+        return null;
+    }
 
     const toggleSelected = async (id: string, name: string) => {
         await axios.patch(`${baseURL}/api/bosses`, { id, name });

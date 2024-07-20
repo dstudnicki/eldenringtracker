@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
-import corsMiddleware from "../../../lib/corsMiddleware";
 
 const client = new MongoClient(process.env.DB_URI ?? "");
 
 export async function GET() {
-    await corsMiddleware();
     try {
         await client.connect();
         const db = client.db("elden-ring");
@@ -22,7 +20,6 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
     const { id } = await request.json();
-    await corsMiddleware();
     try {
         await client.connect();
         const db = client.db("elden-ring");
