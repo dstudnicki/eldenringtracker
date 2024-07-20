@@ -4,11 +4,11 @@ const nextConfig = {
         unoptimized: true,
         remotePatterns: [
             {
-                protocol: "https", // or http
+                protocol: "https",
                 hostname: "eldenring.fanapis.com",
             },
             {
-                protocol: "https", // or http
+                protocol: "https",
                 hostname: "scdn.veryfi.com",
             },
         ],

@@ -31,11 +31,11 @@ export default function BossesPage() {
     console.log(baseURL);
 
     const fetchData = async () => {
-        const data = await axios.get(`${baseURL}/api/bosses`);
-        setData(data.data);
-
-        if (!baseURL) {
-            return null;
+        try {
+            const response = await axios.get(`${baseURL}/api/bosses`);
+            setData(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
         }
     };
 
