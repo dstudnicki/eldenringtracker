@@ -35,11 +35,6 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
                             Bosses
                         </a>
                     </Link>
-                    <Link href="./weapons" legacyBehavior>
-                        <a onClick={() => setSelectedLink("/weapons")} className={linkClass("/weapons")}>
-                            Weapons
-                        </a>
-                    </Link>
                 </div>
             </nav>
             <div className="flex items-center gap-4">
