@@ -27,13 +27,16 @@ export default function BossesPage() {
 
     const locationsForFilter = filteredLocations(dataLocations);
 
+    const baseURL = process.env.NEXT_LOCAL_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    console.log(baseURL);
+
     const fetchData = async () => {
-        const data = await axios.get("http://localhost:3000/api/bosses");
+        const data = await axios.get(`${baseURL}/api/bosses`);
         setData(data.data);
     };
 
     const toggleSelected = async (id: string, name: string) => {
-        await axios.patch("http://localhost:3000/api/bosses", { id, name });
+        await axios.patch(`${baseURL}/api/bosses`, { id, name });
         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
 
         toast(`Succesfully selected ${name}`, {
@@ -42,7 +45,7 @@ export default function BossesPage() {
                 label: "Undo",
                 onClick: () => {
                     setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                    axios.patch("http://localhost:3000/api/bosses", { id });
+                    axios.patch(`${baseURL}/api/bosses`, { id });
                 },
             },
         });
