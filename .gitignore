@@ -36,6 +36,7 @@ docker-compose.yml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+next-auth.d.ts
 
 
 bosses.json

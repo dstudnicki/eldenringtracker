@@ -11,9 +11,11 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    const { data: session } = useSession();
 
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
@@ -43,19 +45,37 @@ export default function BossesPage() {
     };
 
     const toggleSelected = async (id: string, name: string) => {
-        await axios.patch(`${baseURL}/api/bosses`, { id, name });
-        setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+        if (!session) {
+            toast.error("You need to be logged in to select a boss");
+            return;
+        }
 
-        toast(`Successfully selected ${name}`, {
-            description: "Sunday, December 03, 2023 at 9:00 AM",
-            action: {
-                label: "Undo",
-                onClick: () => {
-                    setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                    axios.patch(`${baseURL}/api/bosses`, { id });
+        try {
+            await axios.patch(
+                `${baseURL}/api/bosses`,
+                { id, name },
+                {
+                    headers: {
+                        Authorization: `Bearer ${session?.user.id}`, // Use session token for authorization
+                    },
+                }
+            );
+            setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+
+            toast(`Successfully selected ${name}`, {
+                description: "Sunday, December 03, 2023 at 9:00 AM",
+                action: {
+                    label: "Undo",
+                    onClick: () => {
+                        setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+                        axios.patch(`${baseURL}/api/bosses`, { id });
+                    },
                 },
-            },
-        });
+            });
+        } catch (error) {
+            console.error("Error selecting boss:", error);
+            toast.error("Failed to select boss");
+        }
     };
 
     const showFilteredData = () => {
