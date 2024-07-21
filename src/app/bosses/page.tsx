@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const { data: session } = useSession();
+    console.log(session?.user);
 
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
@@ -45,7 +46,7 @@ export default function BossesPage() {
     };
 
     const toggleSelected = async (id: string, name: string) => {
-        if (!session) {
+        if (!session || !session.user) {
             toast.error("You need to be logged in to select a boss");
             return;
         }
@@ -56,7 +57,7 @@ export default function BossesPage() {
                 { id, name },
                 {
                     headers: {
-                        Authorization: `Bearer ${session?.user.id}`, // Use session token for authorization
+                        Authorization: `Bearer ${session.user.id}`, // Use session token for authorization
                     },
                 }
             );
