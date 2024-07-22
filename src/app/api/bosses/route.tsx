@@ -8,8 +8,8 @@ const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-
-    const userId = session?.user.id || undefined;
+    const session1 = session && session.user ? session.user.id : undefined;
+    const userId = session1;
 
     try {
         await client.connect();
