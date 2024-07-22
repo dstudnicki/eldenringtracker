@@ -35,9 +35,8 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(`${baseURL}/api/bosses`);
-            const result = await response.json();
-            setData(result);
+            const response = await axios.get(`${baseURL}/api/bosses`);
+            setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
