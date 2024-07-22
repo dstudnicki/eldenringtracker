@@ -37,7 +37,7 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/api/bosses", {
+            const response = await axios.get("https://elden-ring-tools.vercel.app/api", {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${userId}`, // Use session token for authorization
