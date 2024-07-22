@@ -5,8 +5,12 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { UserNav } from "./user-nav";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
+    const { data: session } = useSession();
+
+    const dynamicRoute = !session && "/bosses" ? "/register" : "/bosses";
     const pathname = usePathname();
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
 
@@ -21,8 +25,8 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
     }, [pathname]);
 
     return (
-        <div className="hidden sm:flex justify-evenly px-4 sm:px-8 lg:px-12 xl:px-0 xl:container py-16">
-            <nav className={cn("flex w-full items-center justify-start", className)} {...props}>
+        <div className="hidden sm:flex justify-between px-4 sm:px-8 lg:px-12 xl:px-0 xl:container py-16">
+            <nav className={cn("flex items-center justify-start", className)} {...props}>
                 <span className="text-2xl font-bold">Elden Ring Tracker</span>
                 <div className="ms-16 space-x-4 lg:space-x-6">
                     <Link href="./" legacyBehavior>
@@ -30,7 +34,7 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
                             Home
                         </a>
                     </Link>
-                    <Link href="./bosses" legacyBehavior>
+                    <Link href={dynamicRoute} legacyBehavior>
                         <a onClick={() => setSelectedLink("/bosses")} className={linkClass("/bosses")}>
                             Bosses
                         </a>

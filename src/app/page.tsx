@@ -1,12 +1,17 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import hero from "../images/MENU_Knowledge_00193.png";
 import Footer from "@/components/footer";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+    const { data: session } = useSession();
+
+    const dynamicRoute = session ? "/bosses" : "/register";
+
     return (
         <>
             <main className="px-4 sm:px-8 lg:px-12 xl:px-0 xl:container">
@@ -14,7 +19,9 @@ export default function Home() {
                     <div>
                         <h1 className="mb-1 font-bold text-7xl">Track your Elden Ring progress</h1>
                         <p className="mt-6 text-lg text-muted-foreground">Make your journey through the Lands Between easier by tracking your in game progress.</p>
-                        <Button className="mt-6 text-xl p-8 rounded-full">Get started</Button>
+                        <Button className="mt-6 text-xl p-8 rounded-full">
+                            <Link href={dynamicRoute}>Get Started</Link>
+                        </Button>
                     </div>
                     <div className="hidden md:block">
                         <Image src={hero} width={800} height={800} alt="hero" />

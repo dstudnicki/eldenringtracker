@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
     .object({
-        email: z.string().min(2).max(50).email("This is not a valid email"),
-        password: z.string().min(8).max(50),
-        confirmPassword: z.string().min(8).max(50),
+        email: z.string().min(2, "Email must be at least 2 characters long").max(50, "Email must be at most 50 characters long").email("This is not a valid email"),
+        password: z.string().min(8, "Password must be at least 8 characters long").max(50, "Password must be at most 50 characters long"),
+        confirmPassword: z.string().min(8, "Confirm Password must be at least 8 characters long").max(50, "Confirm Password must be at most 50 characters long"),
     })
     .superRefine(({ confirmPassword, password }, ctx) => {
         if (confirmPassword !== password) {
@@ -26,6 +28,8 @@ const formSchema = z
 
 export default function RegisterForm() {
     // 1. Define your form.
+    const router = useRouter();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -41,12 +45,19 @@ export default function RegisterForm() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(values),
+        }).then(async () => {
+            await signIn("credentials", {
+                email: values.email,
+                password: values.password,
+            });
         });
+
+        router.push("./");
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
                     control={form.control}
                     name="email"
@@ -66,7 +77,9 @@ export default function RegisterForm() {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel>
+                                Password <span className="text-muted-foreground">(at least 8 characters long)</span>
+                            </FormLabel>
                             <FormControl>
                                 <Input type="password" {...field} />
                             </FormControl>
@@ -89,13 +102,13 @@ export default function RegisterForm() {
                         </FormItem>
                     )}
                 />
-                <div className="space-x-2">
+                <div className="space-x-1">
                     <span>Already have an account?</span>
                     <Link className="font-bold" href="./login">
                         Log in.
                     </Link>
                 </div>
-                <Button type="submit">Sign in</Button>
+                <Button type="submit">Sign up</Button>
             </form>
         </Form>
     );

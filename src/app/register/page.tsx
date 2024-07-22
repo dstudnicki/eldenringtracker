@@ -20,7 +20,7 @@ export default function RegisterPage() {
                         <p className="text-sm text-muted-foreground">Enter your email below to create your account</p>
                     </div>
                     <UserAuthForm />
-                    <p className="px-8 text-center text-sm text-muted-foreground">
+                    {/* <p className="px-8 text-center text-sm text-muted-foreground">
                         By clicking continue, you agree to our{" "}
                         <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
                             Terms of Service
@@ -30,7 +30,7 @@ export default function RegisterPage() {
                             Privacy Policy
                         </Link>
                         .
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </main>

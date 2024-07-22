@@ -16,7 +16,6 @@ import { useSession } from "next-auth/react";
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const { data: session } = useSession();
-    console.log(session);
 
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
@@ -36,8 +35,9 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`${baseURL}/api/bosses`);
-            setData(response.data);
+            const response = await fetch("http://localhost:3000/api/bosses");
+            const result = await response.json();
+            setData(result);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -52,24 +52,39 @@ export default function BossesPage() {
         }
 
         try {
-            await axios.patch(
-                `${baseURL}/api/bosses`,
-                { id, name },
-                {
-                    headers: {
-                        Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
-                    },
-                }
-            );
+            const response = await fetch("http://localhost:3000/api/bosses", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
+                },
+                body: JSON.stringify({ id, name }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to select a boss");
+            }
+
             setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
 
             toast(`Successfully selected ${name}`, {
                 description: "Sunday, December 03, 2023 at 9:00 AM",
                 action: {
                     label: "Undo",
-                    onClick: () => {
+                    onClick: async () => {
                         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                        axios.patch(`${baseURL}/api/bosses`, { id });
+                        const response = await fetch("http://localhost:3000/api/bosses", {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
+                            },
+                            body: JSON.stringify({ id, name }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Failed to undo select a boss");
+                        }
                     },
                 },
             });
@@ -143,8 +158,8 @@ export default function BossesPage() {
                           </div>
                       ))
                     : showFilteredData().map((boss: any) =>
-                          !isSelected[boss.id] ? (
-                              <Card key={boss.id} className="flex flex-col justify-between">
+                          !isSelected[boss._id] ? (
+                              <Card key={boss._id} className="flex flex-col justify-between">
                                   <CardHeader>
                                       <CardTitle className="text-xl font-bold">{boss.name}</CardTitle>
                                   </CardHeader>
@@ -156,7 +171,7 @@ export default function BossesPage() {
                                       <span className="text-muted-foreground"> {boss.location}</span>
                                   </CardContent>
                                   <CardContent className="flex justify-end">
-                                      <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss.id, boss.name)}>
+                                      <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss._id, boss.name)}>
                                           <Check className="h-4 w-4" />
                                       </Button>
                                   </CardContent>

@@ -47,12 +47,44 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        session: ({ session, token }) => ({
-            ...session,
-            user: {
-                ...session.user,
-                id: token.sub,
-            },
-        }),
+        async session({ session, token }) {
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: token.sub,
+                },
+            };
+        },
+        async signIn({ user, account, profile }) {
+            const client = await clientPromise;
+            const db = client.db("elden-ring");
+
+            // Handle user creation or update based on provider
+            try {
+                const userCollection = db.collection("users");
+
+                if (account?.provider) {
+                    // OAuth providers (e.g., GitHub, Google)
+                    const existingUser = await userCollection.findOne({ email: user.email });
+                    if (!existingUser) {
+                        // Create a new user document if it does not exist
+                        await userCollection.insertOne({
+                            id: user.id,
+                            email: user.email,
+                            selectedBosses: [], // Initialize selectedBosses as an empty array
+                        });
+                    } else {
+                        // Update the user document if it exists
+                        await userCollection.updateOne({ email: user.email }, { $set: { email: user.email } });
+                    }
+                }
+            } catch (error) {
+                console.error("Error during sign-in:", error);
+                return false; // Deny sign-in if there's an error
+            }
+
+            return true; // Allow sign-in
+        },
     },
 };
