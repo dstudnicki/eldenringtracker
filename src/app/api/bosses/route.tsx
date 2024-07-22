@@ -8,12 +8,10 @@ const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 
 export async function GET() {
     const session = await getServerSession(authOptions);
+    console.log(session?.user.id);
 
-    if (!session) {
-        return NextResponse.json({ message: "You are not authorized" }, { status: 401 });
-    }
-
-    const userId = (session?.user as any).id;
+    const userId = session?.user.id || undefined;
+    console.log(userId);
 
     try {
         await client.connect();
@@ -47,8 +45,7 @@ export async function PATCH(request: Request) {
     const { id, name } = await request.json();
     const session = await getServerSession(authOptions);
 
-    const userId = session && session.user ? (session.user as any).id : null;
-    console.log(userId);
+    const userId = session?.user.id;
 
     if (!isValidObjectId(id) || !userId) {
         return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
