@@ -47,7 +47,7 @@ export async function PATCH(request: Request) {
     const { id, name } = await request.json();
     const session = await getServerSession(authOptions);
 
-    const userId = session?.user?.id as any;
+    const userId = session && session.user ? (session.user as any).id : null;
 
     if (!isValidObjectId(id) || !userId) {
         return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
