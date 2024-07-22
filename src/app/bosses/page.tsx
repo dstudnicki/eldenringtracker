@@ -35,7 +35,12 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`${baseURL}/api/bosses`);
+            const response = await axios.get(`${baseURL}/api/bosses`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
+                },
+            });
             setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
