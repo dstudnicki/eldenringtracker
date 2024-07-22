@@ -62,7 +62,7 @@ export default function BossesPage() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
+                    Authorization: `Bearer ${userId}`, // Use session token for authorization
                 },
                 body: JSON.stringify({ id, name }),
             });
@@ -83,7 +83,7 @@ export default function BossesPage() {
                             method: "PATCH",
                             headers: {
                                 "Content-Type": "application/json",
-                                Authorization: `Bearer ${(session?.user as any).id}`, // Use session token for authorization
+                                Authorization: `Bearer ${userId}`, // Use session token for authorization
                             },
                             body: JSON.stringify({ id, name }),
                         });

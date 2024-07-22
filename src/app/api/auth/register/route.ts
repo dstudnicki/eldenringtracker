@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
 const client = new MongoClient(process.env.MONGODB_URI ?? "");
 
 export async function POST(req: Request) {
-    const session = await getServerSession(authOptions);
-
     try {
-        const { email, password } = await req.json();
+        const { id, email, password } = await req.json();
         const bcrypt = require("bcrypt");
         // Validate email and password format (simple example)
         if (!email || !password) {
@@ -22,9 +20,11 @@ export async function POST(req: Request) {
         await client.connect();
         const db = client.db("elden-ring");
         const collection = db.collection("users");
-
+        const generatedId = new ObjectId().toString();
         // Insert new user with selectedBosses field initialized as an empty array
         const result = await collection.insertOne({
+            _id: new ObjectId(generatedId),
+            id: generatedId,
             email,
             password: hashedPassword,
             selectedBosses: [], // Initialize selectedBosses as an empty array
