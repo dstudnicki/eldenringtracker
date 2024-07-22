@@ -13,7 +13,7 @@ export async function GET() {
         return NextResponse.json({ message: "You are not authorized" }, { status: 401 });
     }
 
-    const userId = session && session.user ? (session.user as any).id : null;
+    const userId = session?.user.id as any;
 
     try {
         await client.connect();
