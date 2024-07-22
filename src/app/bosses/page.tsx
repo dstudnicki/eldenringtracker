@@ -16,8 +16,8 @@ import { useSession } from "next-auth/react";
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const { data: session } = useSession();
-    const session1 = session && session.user ? session.user.id : undefined;
-    const userId = session1;
+    const session2 = (session?.user as any).id;
+    const userId = session2;
 
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
