@@ -16,7 +16,7 @@ import { useSession } from "next-auth/react";
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const { data: session } = useSession();
-    const session2 = (session?.user as any).id;
+    const session2 = session && session.user ? (session?.user as any).id : null;
     const userId = session2;
 
     const [data, setData] = useState([]);
@@ -37,7 +37,7 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get("https://elden-ring-tools.vercel.app/api/bosses", {
+            const response = await axios.get(`${baseURL}/api/bosses`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${userId}`, // Use session token for authorization
