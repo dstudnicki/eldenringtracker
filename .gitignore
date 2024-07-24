@@ -41,3 +41,5 @@ next-auth.d.ts
 
 bosses.json
 weapons.json
+
+.vercel

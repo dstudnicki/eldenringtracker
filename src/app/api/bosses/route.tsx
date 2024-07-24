@@ -8,15 +8,13 @@ const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-    const session1 = (session?.user as any).id;
-    const userId = session1;
+    const userId = (session?.user as any).id;
 
     try {
         await client.connect();
         const db = client.db("elden-ring");
         const userCollection = db.collection("users");
 
-        // Fetch user by their 'id' field
         const user = await userCollection.findOne({ id: userId });
 
         if (!user) {
@@ -27,7 +25,6 @@ export async function GET() {
 
         const bossCollection = db.collection("bosses");
 
-        // Fetch all bosses except those in the selectedBosses array
         const bosses = await bossCollection.find({ _id: { $nin: selectedBosses.map((id: string) => new ObjectId(id)) } }).toArray();
 
         return NextResponse.json(bosses);
@@ -40,11 +37,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-    const { id, name } = await request.json();
+    const { id } = await request.json();
     const session = await getServerSession(authOptions);
 
-    const session2 = (session?.user as any).id;
-    const userId = session2;
+    const userId = (session?.user as any).id;
 
     if (!isValidObjectId(id) || !userId) {
         return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
@@ -55,15 +51,12 @@ export async function PATCH(request: Request) {
         const db = client.db("elden-ring");
         const userCollection = db.collection("users");
 
-        // Fetch user by their 'id' field
         const user = await userCollection.findOne({ id: userId });
         const alreadySelected = user?.selectedBosses.includes(id);
 
         if (alreadySelected) {
-            // Remove boss ID if already selected
             await userCollection.updateOne({ id: userId }, { $pull: { selectedBosses: id } });
         } else {
-            // Add boss ID if not selected
             await userCollection.updateOne({ id: userId }, { $addToSet: { selectedBosses: id } });
         }
 
@@ -76,16 +69,16 @@ export async function PATCH(request: Request) {
     }
 }
 
-export async function OPTIONS() {
-    return NextResponse.json(
-        {},
-        {
-            headers: {
-                "Access-Control-Allow-Credentials": "true",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
-                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
-            },
-        }
-    );
-}
+// export async function OPTIONS() {
+//     return NextResponse.json(
+//         {},
+//         {
+//             headers: {
+//                 "Access-Control-Allow-Credentials": "true",
+//                 "Access-Control-Allow-Origin": "*",
+//                 "Access-Control-Allow-Methods": "GET,DELETE,PATCH,POST,PUT,OPTIONS",
+//                 "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+//             },
+//         }
+//     );
+// }

@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
 
 const client = new MongoClient(process.env.MONGODB_URI ?? "");
 
 export async function POST(req: Request) {
     try {
-        const { id, email, password } = await req.json();
+        const { email, password } = await req.json();
         const bcrypt = require("bcrypt");
-        // Validate email and password format (simple example)
+
         if (!email || !password) {
             return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
         }
@@ -21,13 +19,13 @@ export async function POST(req: Request) {
         const db = client.db("elden-ring");
         const collection = db.collection("users");
         const generatedId = new ObjectId().toString();
-        // Insert new user with selectedBosses field initialized as an empty array
+
         const result = await collection.insertOne({
             _id: new ObjectId(generatedId),
             id: generatedId,
             email,
             password: hashedPassword,
-            selectedBosses: [], // Initialize selectedBosses as an empty array
+            selectedBosses: [],
         });
 
         return NextResponse.json({ success: "Account created" }, { status: 201 });

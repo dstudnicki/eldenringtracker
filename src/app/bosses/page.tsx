@@ -15,15 +15,16 @@ import { useSession } from "next-auth/react";
 
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    const currentEnv = process.env.NODE_ENV === "development" ? "http://localhost:3000" : baseURL;
+
     const { data: session } = useSession();
-    const session2 = session && session.user ? (session?.user as any).id : null;
-    const userId = session2;
+    const userId = session && session.user ? (session?.user as any).id : null;
 
     const [data, setData] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
     const dataLocations = data.map((boss: any) => boss.location);
 
     const filteredLocations = (a: any[]) => {
@@ -37,17 +38,17 @@ export default function BossesPage() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`${baseURL}/api/bosses`, {
+            const response = await axios.get(`${currentEnv}/api/bosses`, {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${userId}`, // Use session token for authorization
+                    Authorization: `Bearer ${userId}`,
                 },
             });
             setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
-            setLoading(false); // Set loading to false after fetching
+            setLoading(false);
         }
     };
 
@@ -58,11 +59,11 @@ export default function BossesPage() {
         }
 
         try {
-            const response = await fetch(`${baseURL}/api/bosses`, {
+            const response = await fetch(`${currentEnv}/api/bosses`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${userId}`, // Use session token for authorization
+                    Authorization: `Bearer ${userId}`,
                 },
                 body: JSON.stringify({ id, name }),
             });
@@ -79,11 +80,11 @@ export default function BossesPage() {
                     label: "Undo",
                     onClick: async () => {
                         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                        const response = await fetch(`${baseURL}/api/bosses`, {
+                        const response = await fetch(`${currentEnv}/api/bosses`, {
                             method: "PATCH",
                             headers: {
                                 "Content-Type": "application/json",
-                                Authorization: `Bearer ${userId}`, // Use session token for authorization
+                                Authorization: `Bearer ${userId}`,
                             },
                             body: JSON.stringify({ id, name }),
                         });

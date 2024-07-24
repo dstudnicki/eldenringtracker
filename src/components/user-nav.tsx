@@ -1,15 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
@@ -45,9 +37,14 @@ export function UserNav() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <Link href="./register" legacyBehavior>
-                    <a>Sign in</a>
-                </Link>
+                <>
+                    <Button asChild variant="outline" className="py-2">
+                        <Link href="./login">Sign in</Link>
+                    </Button>
+                    <Button asChild className="py-2">
+                        <Link href="./register">Sign up</Link>
+                    </Button>
+                </>
             )}
         </>
     );
