@@ -57,7 +57,7 @@ export async function PATCH(request: Request) {
         if (alreadySelected) {
             await userCollection.updateOne({ id: userId }, { $pull: { selectedBosses: id } });
         } else {
-            await userCollection.updateOne({ id: userId }, { $addToSet: { selectedBosses: id } });
+            await userCollection.updateOne({ id: userId }, { $addToSet: { selectedBosses: { id } } });
         }
 
         return NextResponse.json({ message: "Updated successfully" });

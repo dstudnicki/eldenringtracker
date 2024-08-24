@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -21,11 +22,12 @@ export default function BossesPage() {
     const userId = session && session.user ? (session?.user as any).id : null;
 
     const [data, setData] = useState([]);
+    const [selectedBosses, setSelectedBosses] = useState([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
     const [loading, setLoading] = useState(true);
-    const dataLocations = data.map((boss: any) => boss.location);
+    const dataLocations = data.map((boss: any) => boss.region);
 
     const filteredLocations = (a: any[]) => {
         var seen: { [key: string]: boolean } = {};
@@ -33,6 +35,24 @@ export default function BossesPage() {
             return seen.hasOwnProperty(item) ? false : (seen[item] = true);
         });
     };
+
+    const findMatchingBosses = (dataArray: any[], selectedArray: any[]) => {
+        return dataArray.filter((boss) => selectedArray.some((selectedBoss) => selectedBoss.id === boss.id));
+    };
+
+    useEffect(() => {
+        if (data.length > 0 && selectedBosses.length > 0) {
+            const matchingBosses = findMatchingBosses(data, selectedBosses);
+            console.log(matchingBosses);
+            matchingBosses.forEach((boss) => {
+                console.log(`Boss found: ${boss.name}`);
+            });
+        }
+    }, [data, selectedBosses]);
+
+    if (!session) {
+        redirect("/login");
+    }
 
     const locationsForFilter = filteredLocations(dataLocations);
 
@@ -49,6 +69,20 @@ export default function BossesPage() {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSelectedBosses = async () => {
+        try {
+            const response = await axios.get(`${currentEnv}/api/selectedBosses`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${userId}`,
+                },
+            });
+            setSelectedBosses(response.data);
+        } catch (error) {
+            console.error("Error fetching selected bosses:", error);
         }
     };
 
@@ -103,7 +137,7 @@ export default function BossesPage() {
 
     const showFilteredData = () => {
         if (value) {
-            return data.filter((boss: any) => boss.location === value);
+            return data.filter((boss: any) => boss.region === value);
         } else {
             return data;
         }
@@ -111,6 +145,7 @@ export default function BossesPage() {
 
     useEffect(() => {
         fetchData();
+        fetchSelectedBosses();
     }, []);
 
     return (
@@ -121,7 +156,7 @@ export default function BossesPage() {
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
-                            {value ? locationsForFilter.find((location) => location === value) : "Select location..."}
+                            {value ? locationsForFilter.find((region) => region === value) : "Select location..."}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                     </PopoverTrigger>
@@ -131,16 +166,16 @@ export default function BossesPage() {
                             <CommandList>
                                 <CommandEmpty>No location found.</CommandEmpty>
                                 <CommandGroup>
-                                    {locationsForFilter.map((location) => (
+                                    {locationsForFilter.map((region) => (
                                         <CommandItem
-                                            key={location}
-                                            value={location}
+                                            key={region}
+                                            value={region}
                                             onSelect={(currentValue) => {
                                                 setValue(currentValue === value ? "" : currentValue);
                                                 setOpen(false);
                                             }}>
-                                            <Check className={cn("mr-2 h-4 w-4", value === location ? "opacity-100" : "opacity-0")} />
-                                            {location}
+                                            <Check className={cn("mr-2 h-4 w-4", value === region ? "opacity-100" : "opacity-0")} />
+                                            {region}
                                         </CommandItem>
                                     ))}
                                 </CommandGroup>
@@ -151,8 +186,7 @@ export default function BossesPage() {
             )}
             <section className="grid sm:grid-cols-2 lg:grid-cols-4 grid-rows-1 gap-4 mt-2">
                 {loading
-                    ? // Display skeleton loaders when loading
-                      Array.from({ length: 8 }).map((_, index) => (
+                    ? Array.from({ length: 8 }).map((_, index) => (
                           <div key={index} className="flex flex-col space-y-3 mt-8">
                               <Skeleton className="flex h-5 w-[250px] mb-2" />
                               <Skeleton className="h-[160px] w-[300px] rounded-xl" />

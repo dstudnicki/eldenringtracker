@@ -15,6 +15,10 @@ import { signOut, useSession } from "next-auth/react";
 export default function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
     const { data: session } = useSession();
 
+    // function classNames(...classes: string[]) {
+    //     return classes.filter(Boolean).join(" ")
+    //   }
+
     const dynamicRoute = !session && "/bosses" ? "/register" : "/bosses";
     const pathname = usePathname();
     const [selectedLink, setSelectedLink] = useState<string | null>(null);
@@ -72,7 +76,6 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
                                                 <DropdownMenuItem>Settings</DropdownMenuItem>
                                             </DropdownMenuGroup>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 ) : (
@@ -83,18 +86,32 @@ export default function Navbar({ className, ...props }: React.HTMLAttributes<HTM
                                 <a href="./">Home</a>
                                 <a href={dynamicRoute}>Bosses</a>
                             </div>
-                            <SheetFooter className="gap-2">
+                            {session ? (
                                 <SheetClose asChild>
-                                    <Button type="submit">
-                                        <a href="./register">Sign up</a>
-                                    </Button>
+                                    <Link onClick={() => signOut()} href="./register">
+                                        <Button className="w-full" type="submit">
+                                            Log out
+                                        </Button>
+                                    </Link>
                                 </SheetClose>
-                                <SheetClose asChild>
-                                    <Button variant="secondary" type="submit">
-                                        <a href="./login">Sign in</a>
-                                    </Button>
-                                </SheetClose>
-                            </SheetFooter>
+                            ) : (
+                                <SheetFooter className="gap-2">
+                                    <SheetClose asChild>
+                                        <Link href="./register">
+                                            <Button className="w-full" type="submit">
+                                                Sign up
+                                            </Button>
+                                        </Link>
+                                    </SheetClose>
+                                    <SheetClose asChild>
+                                        <Link href="./login">
+                                            <Button className="w-full" variant="secondary" type="submit">
+                                                Sign in
+                                            </Button>
+                                        </Link>
+                                    </SheetClose>
+                                </SheetFooter>
+                            )}
                         </SheetContent>
                     </Sheet>
                 </div>

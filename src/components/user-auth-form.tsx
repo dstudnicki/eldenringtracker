@@ -36,11 +36,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </div>
             </div>
             <div className="flex flex-col gap-2">
-                <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("github")}>
-                    {isLoading ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.gitHub className="mr-2 h-4 w-4" />} GitHub
-                </Button>
                 <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("google")}>
                     {isLoading ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.google className="mr-2 h-4 w-4" />} Google
+                </Button>
+                <Button variant="outline" type="button" disabled={isLoading} onClick={() => signIn("github")}>
+                    {isLoading ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.gitHub className="mr-2 h-4 w-4" />} GitHub
                 </Button>
             </div>
         </div>

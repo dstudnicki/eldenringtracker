@@ -38,10 +38,10 @@ export function UserNav() {
                 </DropdownMenu>
             ) : (
                 <>
-                    <Button asChild variant="outline" className="py-2">
+                    <Button asChild variant="outline">
                         <Link href="./login">Sign in</Link>
                     </Button>
-                    <Button asChild className="py-2">
+                    <Button asChild>
                         <Link href="./register">Sign up</Link>
                     </Button>
                 </>
