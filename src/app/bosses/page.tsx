@@ -148,7 +148,7 @@ export default function BossesPage() {
     const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
 
     return (
-        <Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
             <main className="flex flex-col px-4 sm:px-8 lg:px-12 xl:px-0 xl:container">
                 {loading ? (
                     <Skeleton className="h-9 w-[200px]" />
