@@ -50,6 +50,7 @@ export async function PATCH(request: Request) {
         await client.connect();
         const db = client.db("elden-ring");
         const userCollection = db.collection("users");
+        const bossCollection = db.collection("bosses");
 
         const user = await userCollection.findOne({ id: userId });
         const alreadySelected = user?.selectedBosses.includes(id);
@@ -57,7 +58,14 @@ export async function PATCH(request: Request) {
         if (alreadySelected) {
             await userCollection.updateOne({ id: userId }, { $pull: { selectedBosses: id } });
         } else {
-            await userCollection.updateOne({ id: userId }, { $addToSet: { selectedBosses: { id } } });
+            const boss = await bossCollection.findOne({ _id: new ObjectId(id) });
+            if (!boss) {
+                return NextResponse.json({ message: "Boss not found" }, { status: 404 });
+            }
+            await userCollection.updateOne(
+                { id: userId },
+                { $addToSet: { selectedBosses: { id, name: boss.name, image: boss.image, region: boss.region, description: boss.description, location: boss.location } } }
+            );
         }
 
         return NextResponse.json({ message: "Updated successfully" });

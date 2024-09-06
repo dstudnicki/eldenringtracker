@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,47 +13,31 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function BossesPage() {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const currentEnv = process.env.NODE_ENV === "development" ? "http://localhost:3000" : baseURL;
 
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const regionValue = searchParams.get("region");
+
     const { data: session } = useSession();
     const userId = session && session.user ? (session?.user as any).id : null;
 
-    const [data, setData] = useState([]);
-    const [selectedBosses, setSelectedBosses] = useState([]);
-    const [isSelected, setIsSelected] = useState<{ [key: string]: any }>({});
+    const [data, setData] = useState<{ _id: string; name: string; image: string; location: string; region: string }[]>([]);
+    const [selectedBosses, setSelectedBosses] = useState<{ _id: string; name: string; image?: string; location?: string }[]>([]);
+    const [isSelected, setIsSelected] = useState<{ [key: string]: boolean }>({});
+    const [showSelectedOnly, setShowSelectedOnly] = useState(false); // State to toggle view
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState("");
     const [loading, setLoading] = useState(true);
-    const dataLocations = data.map((boss: any) => boss.region);
+    const dataLocations = data.map((boss) => boss.region);
 
     const filteredLocations = (a: any[]) => {
-        var seen: { [key: string]: boolean } = {};
-        return a.filter(function (item) {
-            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-        });
+        const seen: { [key: string]: boolean } = {};
+        return a.filter((item) => (seen.hasOwnProperty(item) ? false : (seen[item] = true)));
     };
-
-    const findMatchingBosses = (dataArray: any[], selectedArray: any[]) => {
-        return dataArray.filter((boss) => selectedArray.some((selectedBoss) => selectedBoss.id === boss.id));
-    };
-
-    useEffect(() => {
-        if (data.length > 0 && selectedBosses.length > 0) {
-            const matchingBosses = findMatchingBosses(data, selectedBosses);
-            console.log(matchingBosses);
-            matchingBosses.forEach((boss) => {
-                console.log(`Boss found: ${boss.name}`);
-            });
-        }
-    }, [data, selectedBosses]);
-
-    if (!session) {
-        redirect("/login");
-    }
 
     const locationsForFilter = filteredLocations(dataLocations);
 
@@ -107,6 +92,7 @@ export default function BossesPage() {
             }
 
             setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+            await fetchSelectedBosses();
 
             toast(`Successfully selected ${name}`, {
                 description: "Sunday, December 03, 2023 at 9:00 AM",
@@ -114,7 +100,7 @@ export default function BossesPage() {
                     label: "Undo",
                     onClick: async () => {
                         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                        const response = await fetch(`${currentEnv}/api/bosses`, {
+                        const undoResponse = await fetch(`${currentEnv}/api/bosses`, {
                             method: "PATCH",
                             headers: {
                                 "Content-Type": "application/json",
@@ -123,9 +109,10 @@ export default function BossesPage() {
                             body: JSON.stringify({ id, name }),
                         });
 
-                        if (!response.ok) {
+                        if (!undoResponse.ok) {
                             throw new Error("Failed to undo select a boss");
                         }
+                        await fetchSelectedBosses();
                     },
                 },
             });
@@ -136,11 +123,20 @@ export default function BossesPage() {
     };
 
     const showFilteredData = () => {
-        if (value) {
-            return data.filter((boss: any) => boss.region === value);
+        if (regionValue) {
+            return data.filter((boss) => boss.region === regionValue);
         } else {
             return data;
         }
+    };
+
+    const handleLocationSelect = (selectedRegion: string) => {
+        regionValue === selectedRegion ? router.push(`/bosses`) : router.push(`?region=${selectedRegion}`);
+        setOpen(false);
+    };
+
+    const handleToggleView = () => {
+        setShowSelectedOnly((prev) => !prev);
     };
 
     useEffect(() => {
@@ -148,78 +144,81 @@ export default function BossesPage() {
         fetchSelectedBosses();
     }, []);
 
+    const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
+
     return (
         <main className="flex flex-col px-4 sm:px-8 lg:px-12 xl:px-0 xl:container">
             {loading ? (
                 <Skeleton className="h-9 w-[200px]" />
             ) : (
-                <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
-                            {value ? locationsForFilter.find((region) => region === value) : "Select location..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <>
+                    <div className="flex gap-4">
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+                                    {regionValue ? locationsForFilter.find((region) => region === regionValue) : "Search region..."}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search region..." />
+                                    <CommandList>
+                                        <CommandEmpty>No location found.</CommandEmpty>
+                                        <CommandGroup>
+                                            {locationsForFilter.map((region) => (
+                                                <CommandItem key={region} value={region} onSelect={() => handleLocationSelect(region)}>
+                                                    <Check className={cn("mr-2 h-4 w-4", regionValue === region ? "opacity-100" : "opacity-0")} />
+                                                    {region}
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                        <Button variant="outline" onClick={handleToggleView}>
+                            {showSelectedOnly ? "View All Bosses" : "View Selected Bosses"}
                         </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                            <CommandInput placeholder="Search location..." />
-                            <CommandList>
-                                <CommandEmpty>No location found.</CommandEmpty>
-                                <CommandGroup>
-                                    {locationsForFilter.map((region) => (
-                                        <CommandItem
-                                            key={region}
-                                            value={region}
-                                            onSelect={(currentValue) => {
-                                                setValue(currentValue === value ? "" : currentValue);
-                                                setOpen(false);
-                                            }}>
-                                            <Check className={cn("mr-2 h-4 w-4", value === region ? "opacity-100" : "opacity-0")} />
-                                            {region}
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
-                    </PopoverContent>
-                </Popover>
-            )}
-            <section className="grid sm:grid-cols-2 lg:grid-cols-4 grid-rows-1 gap-4 mt-2">
-                {loading
-                    ? Array.from({ length: 8 }).map((_, index) => (
-                          <div key={index} className="flex flex-col space-y-3 mt-8">
-                              <Skeleton className="flex h-5 w-[250px] mb-2" />
-                              <Skeleton className="h-[160px] w-[300px] rounded-xl" />
-                              <div className="space-y-2">
-                                  <Skeleton className="h-5 w-[250px] mb-6" />
-                                  <div className="flex justify-end me-10">
-                                      <Skeleton className="h-10 w-10 rounded-md" />
+                    </div>
+                    <section className="grid sm:grid-cols-2 lg:grid-cols-4 grid-rows-1 gap-4 mt-2">
+                        {loading
+                            ? Array.from({ length: 8 }).map((_, index) => (
+                                  <div key={index} className="flex flex-col space-y-3 mt-8">
+                                      <Skeleton className="flex h-5 w-[250px] mb-2" />
+                                      <Skeleton className="h-[160px] w-[300px] rounded-xl" />
+                                      <div className="space-y-2">
+                                          <Skeleton className="h-5 w-[250px] mb-6" />
+                                          <div className="flex justify-end me-10">
+                                              <Skeleton className="h-10 w-10 rounded-md" />
+                                          </div>
+                                      </div>
                                   </div>
-                              </div>
-                          </div>
-                      ))
-                    : showFilteredData().map((boss: any) =>
-                          !isSelected[boss._id] ? (
-                              <Card key={boss._id} className="flex flex-col justify-between">
-                                  <CardHeader>
-                                      <CardTitle className="text-xl font-bold">{boss.name}</CardTitle>
-                                  </CardHeader>
-                                  <CardContent className="pb-0 text-2xl font-bold">
-                                      {boss.image ? <Image className="rounded-md max-h-40 w-full" width={300} height={300} src={boss.image} alt="Picture of boss" /> : <p>No image found.</p>}
-                                  </CardContent>
-                                  <CardContent className="text-sm mt-2">
-                                      <span className="font-bold">Location:</span>
-                                      <span className="text-muted-foreground"> {boss.location}</span>
-                                  </CardContent>
-                                  <CardContent className="flex justify-end">
-                                      <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss._id, boss.name)}>
-                                          <Check className="h-4 w-4" />
-                                      </Button>
-                                  </CardContent>
-                              </Card>
-                          ) : null
-                      )}
-            </section>
+                              ))
+                            : displayedData.map((boss: any) =>
+                                  !isSelected[boss._id] ? (
+                                      <Card key={boss._id} className="flex flex-col justify-between">
+                                          <CardHeader>
+                                              <CardTitle className="text-xl font-bold">{boss.name}</CardTitle>
+                                          </CardHeader>
+                                          <CardContent className="pb-0 text-2xl font-bold">
+                                              {boss.image ? <Image className="rounded-md max-h-40 w-full" width={300} height={300} src={boss.image} alt="Picture of boss" /> : <p>No image found.</p>}
+                                          </CardContent>
+                                          <CardContent className="text-sm mt-2">
+                                              <span className="font-bold">Location:</span>
+                                              <span className="text-muted-foreground"> {boss.location}</span>
+                                          </CardContent>
+                                          <CardContent className="flex justify-end">
+                                              <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss._id, boss.name)}>
+                                                  <Check className="h-4 w-4" />
+                                              </Button>
+                                          </CardContent>
+                                      </Card>
+                                  ) : null
+                              )}
+                    </section>
+                </>
+            )}
             <Toaster />
         </main>
     );
