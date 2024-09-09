@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
@@ -10,7 +10,11 @@ export function UserNav() {
 
     return (
         <>
-            {session ? (
+            {session === undefined ? (
+                <div className="flex items-center space-x-4">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                </div>
+            ) : session ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">

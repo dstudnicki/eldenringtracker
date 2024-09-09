@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import SessionWrapper from "@/components/SessionWrapper";
 import { Suspense } from "react";
+import BossesFallback from "@/components/BossesFallback";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,7 @@ export default function RootLayout({
                 <body className={inter.className}>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
                         <Navbar />
-                        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+                        <Suspense fallback={<BossesFallback />}>{children}</Suspense>
                     </ThemeProvider>
                 </body>
             </html>
