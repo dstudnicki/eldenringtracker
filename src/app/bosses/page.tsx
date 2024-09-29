@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Toaster } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
@@ -27,19 +27,20 @@ export default function BossesPage() {
     const userId = session && session.user ? (session?.user as any).id : null;
 
     const [data, setData] = useState<{ _id: string; name: string; image: string; location: string; region: string }[]>([]);
-    const [selectedBosses, setSelectedBosses] = useState<{ _id: string; name: string; image: string; location: string; region: string }[]>([]);
+    const [selectedBosses, setSelectedBosses] = useState<{ id: string; name: string; image: string; location: string; region: string }[]>([]);
     const [isSelected, setIsSelected] = useState<{ [key: string]: boolean }>({});
     const [showSelectedOnly, setShowSelectedOnly] = useState(false);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const dataLocations = data.map((boss) => boss.region);
 
-    const filteredLocations = (a: any[]) => {
+    // Function to remove duplicates from array
+    const filterDuplicates = (a: any[]) => {
         const seen: { [key: string]: boolean } = {};
         return a.filter((item) => (seen.hasOwnProperty(item) ? false : (seen[item] = true)));
     };
 
-    const locationsForFilter = filteredLocations(dataLocations);
+    const locationsForFilter = filterDuplicates(dataLocations);
 
     const fetchData = async () => {
         try {
@@ -122,6 +123,30 @@ export default function BossesPage() {
         }
     };
 
+    const toggleDeleted = async (id: string, name: string) => {
+        try {
+            const response = await fetch(`${currentEnv}/api/selectedBosses`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${userId}`,
+                },
+                body: JSON.stringify({ id, name }),
+            });
+            setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+
+            if (!response.ok) {
+                throw new Error("Failed to undo boss from selected bosses");
+            }
+            await fetchSelectedBosses();
+            toast.success(`Successfully removed ${name} from selected bosses`);
+        } catch (error) {
+            console.error("Error deleting boss:", error);
+            toast.error("Failed to delete boss");
+        }
+    };
+
+    // Function to filter data based on selected region
     const showFilteredData = () => {
         if (regionValue) {
             return data.filter((boss) => boss.region === regionValue);
@@ -130,11 +155,13 @@ export default function BossesPage() {
         }
     };
 
+    // Function to handle location select
     const handleLocationSelect = (selectedRegion: string) => {
         regionValue === selectedRegion ? router.push(`/bosses`) : router.push(`?region=${selectedRegion}`);
         setOpen(false);
     };
 
+    // Function to handle toggle view
     const handleToggleView = () => {
         setShowSelectedOnly((prev) => !prev);
     };
@@ -144,6 +171,7 @@ export default function BossesPage() {
         fetchSelectedBosses();
     }, []);
 
+    // If showSelectedOnly is true, display selectedBosses, otherwise display filtered data
     const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
 
     return (
@@ -206,9 +234,15 @@ export default function BossesPage() {
                                           <span className="text-muted-foreground"> {boss.location}</span>
                                       </CardContent>
                                       <CardContent className="flex justify-end">
-                                          <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss._id, boss.name)}>
-                                              <Check className="h-4 w-4" />
-                                          </Button>
+                                          {showSelectedOnly ? (
+                                              <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleDeleted(boss.id, boss.name)}>
+                                                  <X className="h-4 w-4" />
+                                              </Button>
+                                          ) : (
+                                              <Button className="hover:invert" variant="outline" size="icon" onClick={() => toggleSelected(boss._id, boss.name)}>
+                                                  <Check className="h-4 w-4" />
+                                              </Button>
+                                          )}
                                       </CardContent>
                                   </Card>
                               ) : null
