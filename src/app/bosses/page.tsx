@@ -72,6 +72,7 @@ export default function BossesPage() {
         }
     };
 
+    // Function to select a boss
     const toggleSelected = async (id: string, name: string) => {
         if (!session || !session.user) {
             toast.error("You need to be logged in to select a boss");
@@ -88,41 +89,24 @@ export default function BossesPage() {
                 body: JSON.stringify({ id, name }),
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to select a boss");
+            if (response.status === 429) {
+                toast.error("Rate limit exceeded wait for a minute.");
+            } else if (!response.ok) {
+                toast.error("Failed to select a boss try again.");
+            } else {
+                toast(`Successfully selected ${name}`, {
+                    description: "Sunday, December 03, 2023 at 9:00 AM",
+                });
             }
 
             setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
             await fetchSelectedBosses();
-
-            toast(`Successfully selected ${name}`, {
-                description: "Sunday, December 03, 2023 at 9:00 AM",
-                action: {
-                    label: "Undo",
-                    onClick: async () => {
-                        setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
-                        const undoResponse = await fetch(`${currentEnv}/api/bosses`, {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${userId}`,
-                            },
-                            body: JSON.stringify({ id, name }),
-                        });
-
-                        if (!undoResponse.ok) {
-                            throw new Error("Failed to undo select a boss");
-                        }
-                        await fetchSelectedBosses();
-                    },
-                },
-            });
         } catch (error) {
             console.error("Error selecting boss:", error);
-            toast.error("Failed to select boss");
         }
     };
 
+    // Function to delete selected bosses
     const toggleDeleted = async (id: string, name: string) => {
         try {
             const response = await fetch(`${currentEnv}/api/selectedBosses`, {
@@ -171,7 +155,7 @@ export default function BossesPage() {
         fetchSelectedBosses();
     }, []);
 
-    // If showSelectedOnly is true, display selectedBosses, otherwise display filtered data
+    // If showSelectedOnly is true, display selected bosses, otherwise display filtered data
     const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
 
     return (

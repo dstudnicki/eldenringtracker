@@ -2,11 +2,19 @@ import { NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { rateLimit } from "@/middleware/rateLimiter";
+import { headers } from "next/headers";
 
 const client = new MongoClient(process.env.MONGODB_URI ?? "");
 const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 
 export async function GET() {
+    const ip = headers().get("x-forwarded-for") ?? "unknown";
+
+    if (rateLimit(ip)) {
+        return NextResponse.json({ message: "Rate limit exceeded" }, { status: 429 });
+    }
+
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any).id;
 
@@ -37,6 +45,12 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+    const ip = headers().get("x-forwarded-for") ?? "unknown";
+
+    if (rateLimit(ip)) {
+        return NextResponse.json({ message: "Rate limit exceeded" }, { status: 429 });
+    }
+
     const { id } = await request.json();
     const session = await getServerSession(authOptions);
 

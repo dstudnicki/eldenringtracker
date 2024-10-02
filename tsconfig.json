@@ -21,6 +21,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["next-env.d.ts", "next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/auth/[...nextauth].js"],
+    "include": ["next-env.d.ts", "next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/auth/[...nextauth].js", "middleware/rateLimiter.js"],
     "exclude": ["node_modules"]
 }
