@@ -19,12 +19,13 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown, Rotate3D, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { isValid } from "zod";
 
 export default function BossesPage() {
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -184,17 +185,45 @@ export default function BossesPage() {
     regionValue === formattedRegion
       ? router.push(`/bosses`)
       : router.push(`?region=${formattedRegion}`);
+
     setOpenRegion(false);
   };
 
+  useEffect(() => {
+    if (regionValue) {
+      const formattedRegion = regionValue.replace(/-/g, " ");
+      const isValidRegion = locationsForFilter.some(
+        (region: string) =>
+          region.toLowerCase() === formattedRegion.toLowerCase(),
+      );
+      if (!isValidRegion) {
+        router.push("/bosses");
+      }
+    }
+  }, [regionValue, router, locationsForFilter]);
+
+  // Function to handle boss select
   const handleBossSelect = (selectedBoss: string) => {
     const formattedBoss = selectedBoss.replace(/ /g, "-");
 
     bossValue === formattedBoss
       ? router.push(`/bosses`)
       : router.push(`?boss=${formattedBoss}`);
+
     setOpenBosses(false);
   };
+
+  useEffect(() => {
+    if (bossValue) {
+      const formattedBoss = bossValue.replace(/-/g, " ");
+      const isValidBoss = dataBosses.some(
+        (boss: string) => boss.toLowerCase() === formattedBoss.toLowerCase(),
+      );
+      if (!isValidBoss) {
+        router.push("/bosses");
+      }
+    }
+  }, [bossValue, router, dataBosses]);
 
   // Function to handle toggle view
   const handleToggleView = () => {
