@@ -25,7 +25,8 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { isValid } from "zod";
+import { Spinner } from "@/components/ui/spinner";
+import { set } from "zod";
 
 export default function BossesPage() {
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -63,6 +64,9 @@ export default function BossesPage() {
   const [openRegion, setOpenRegion] = useState(false);
   const [openBosses, setOpenBosses] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  console.log(isRateLimited);
+
   const dataLocations = data.map((boss) => boss.region);
   const dataBosses = data.map((boss) => boss.name);
 
@@ -125,15 +129,17 @@ export default function BossesPage() {
 
       if (response.status === 429) {
         toast.error("Rate limit exceeded wait for a minute.");
+        setIsRateLimited(true);
       } else if (!response.ok) {
         toast.error("Failed to select a boss try again.");
       } else {
         toast(`Successfully selected ${name}`, {
           description: "Sunday, December 03, 2023 at 9:00 AM",
         });
+        setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+        setIsRateLimited(false);
       }
 
-      setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
       await fetchSelectedBosses();
     } catch (error) {
       console.error("Error selecting boss:", error);
@@ -240,105 +246,109 @@ export default function BossesPage() {
   const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
 
   return (
-    <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12 xl:px-0">
+    <main className="flex flex-col px-4 text-xl xl:container sm:px-8 lg:px-12">
       <>
-        <div className="flex gap-4">
-          <Popover open={openRegion} onOpenChange={setOpenRegion}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openRegion}
-                className="w-[200px] justify-between"
-              >
-                {regionValue
-                  ? locationsForFilter.find(
-                      (region) => region.replace(/ /g, "-") === regionValue,
-                    ) || "Filter by region..." // Fallback if not found
-                  : "Filter by region..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Search region..." />
-                <CommandList>
-                  <CommandEmpty>No region found.</CommandEmpty>
-                  <CommandGroup>
-                    {locationsForFilter.map((region) => (
-                      <CommandItem
-                        key={region}
-                        value={region}
-                        onSelect={() => handleLocationSelect(region)}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            regionValue === region.replace(/ /g, "-")
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                        {region}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover open={openBosses} onOpenChange={setOpenBosses}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openBosses}
-                className="w-[200px] justify-between"
-              >
-                {bossValue
-                  ? dataBosses.find(
-                      (boss) => boss.replace(/ /g, "-") === bossValue,
-                    ) || "Filter by boss..." // Fallback if not found
-                  : "Filter by boss..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Search region..." />
-                <CommandList>
-                  <CommandEmpty>No boss found.</CommandEmpty>
-                  <CommandGroup>
-                    {dataBosses.map((boss) => (
-                      <CommandItem
-                        key={boss}
-                        value={boss}
-                        onSelect={() => handleBossSelect(boss)}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            bossValue === boss.replace(/ /g, "-")
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                        {boss}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Button variant="outline" onClick={handleToggleView}>
-            {showSelectedOnly ? "View All Bosses" : "View Selected Bosses"}
-          </Button>
+        <div className="flex flex-col md:flex-row md:gap-4">
+          <div className="flex gap-2 sm:gap-4">
+            <Popover open={openRegion} onOpenChange={setOpenRegion}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openRegion}
+                >
+                  {regionValue
+                    ? locationsForFilter.find(
+                        (region) => region.replace(/ /g, "-") === regionValue,
+                      ) || "Filter by region..." // Fallback if not found
+                    : "Filter by region..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0">
+                <Command>
+                  <CommandInput placeholder="Search region..." />
+                  <CommandList>
+                    <CommandEmpty>No region found.</CommandEmpty>
+                    <CommandGroup>
+                      {locationsForFilter.map((region) => (
+                        <CommandItem
+                          key={region}
+                          value={region}
+                          onSelect={() => handleLocationSelect(region)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              regionValue === region.replace(/ /g, "-")
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                          {region}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            <Popover open={openBosses} onOpenChange={setOpenBosses}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openBosses}
+                >
+                  {bossValue
+                    ? dataBosses.find(
+                        (boss) => boss.replace(/ /g, "-") === bossValue,
+                      ) || "Filter by boss..." // Fallback if not found
+                    : "Filter by boss..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0">
+                <Command>
+                  <CommandInput placeholder="Search boss..." />
+                  <CommandList>
+                    <CommandEmpty>No boss found.</CommandEmpty>
+                    <CommandGroup>
+                      {dataBosses.map((boss) => (
+                        <CommandItem
+                          key={boss}
+                          value={boss}
+                          onSelect={() => handleBossSelect(boss)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              bossValue === boss.replace(/ /g, "-")
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                          {boss}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="mt-2 md:mt-0">
+            <Button variant="outline" onClick={handleToggleView}>
+              {showSelectedOnly ? "View All Bosses" : "View Selected Bosses"}
+            </Button>
+          </div>
         </div>
+
         <section className="mt-2 grid grid-rows-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {loading
             ? Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="mt-8 flex flex-col space-y-3">
+                <div key={index} className="mt-2 flex flex-col space-y-3">
                   <Skeleton className="mb-2 flex h-5 w-[250px]" />
                   <Skeleton className="h-[160px] w-[300px] rounded-xl" />
                   <div className="space-y-2">
@@ -381,7 +391,9 @@ export default function BossesPage() {
                       </span>
                     </CardContent>
                     <CardContent className="flex justify-end">
-                      {showSelectedOnly ? (
+                      {isRateLimited ? (
+                        <Spinner size="small" />
+                      ) : showSelectedOnly ? (
                         <Button
                           className="hover:invert"
                           variant="outline"
