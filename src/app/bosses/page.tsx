@@ -22,11 +22,9 @@ import { toast } from "sonner";
 import { Check, ChevronsUpDown, Rotate3D, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
-import { set } from "zod";
 
 export default function BossesPage() {
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -37,6 +35,16 @@ export default function BossesPage() {
   const searchParams = useSearchParams();
   const regionValue = searchParams.get("region");
   const bossValue = searchParams.get("boss");
+  const date = {
+    year: new Date().getFullYear(),
+    month: new Date().toLocaleString("en-US", { month: "long" }),
+    day: new Date().getDate(),
+    dayName: new Date().toLocaleString("en-US", { weekday: "long" }),
+    hour: new Date().toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+  };
 
   const { data: session } = useSession();
   const userId = session && session.user ? (session?.user as any).id : null;
@@ -65,7 +73,7 @@ export default function BossesPage() {
   const [openBosses, setOpenBosses] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isRateLimited, setIsRateLimited] = useState(false);
-  console.log(isRateLimited);
+  const [isRequesting, setIsRequesting] = useState(false);
 
   const dataLocations = data.map((boss) => boss.region);
   const dataBosses = data.map((boss) => boss.name);
@@ -82,13 +90,14 @@ export default function BossesPage() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${currentEnv}/api/bosses`, {
+      const response = await fetch(`${currentEnv}/api/bosses`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userId}`,
         },
       });
-      setData(response.data);
+      const data = await response.json();
+      setData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -98,13 +107,14 @@ export default function BossesPage() {
 
   const fetchSelectedBosses = async () => {
     try {
-      const response = await axios.get(`${currentEnv}/api/selectedBosses`, {
+      const response = await fetch(`${currentEnv}/api/selectedBosses`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userId}`,
         },
       });
-      setSelectedBosses(response.data);
+      const data = await response.json();
+      setSelectedBosses(data);
     } catch (error) {
       console.error("Error fetching selected bosses:", error);
     }
@@ -134,13 +144,15 @@ export default function BossesPage() {
         toast.error("Failed to select a boss try again.");
       } else {
         toast(`Successfully selected ${name}`, {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
+          description: `${date.dayName}, ${date.month} ${date.day}, ${date.year} at ${date.hour}`,
         });
         setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
         setIsRateLimited(false);
+        setIsRequesting(true);
       }
 
       await fetchSelectedBosses();
+      setIsRequesting(false);
     } catch (error) {
       console.error("Error selecting boss:", error);
     }
@@ -158,12 +170,17 @@ export default function BossesPage() {
         body: JSON.stringify({ id, name }),
       });
       setIsSelected((prevState) => ({ ...prevState, [id]: !prevState[id] }));
+      setIsRequesting(true);
 
       if (!response.ok) {
         throw new Error("Failed to undo boss from selected bosses");
       }
       await fetchSelectedBosses();
-      toast.success(`Successfully removed ${name} from selected bosses`);
+      setIsRequesting(false);
+
+      toast(`Successfully removed ${name} from selected bosses`, {
+        description: `${date.dayName}, ${date.month} ${date.day}, ${date.year} at ${date.hour}`,
+      });
     } catch (error) {
       console.error("Error deleting boss:", error);
       toast.error("Failed to delete boss");
@@ -338,10 +355,14 @@ export default function BossesPage() {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="mt-2 md:mt-0">
+          <div className="mt-2 flex md:mt-0">
             <Button variant="outline" onClick={handleToggleView}>
               {showSelectedOnly ? "View All Bosses" : "View Selected Bosses"}
             </Button>
+            <p className="ms-2 flex items-center text-xs sm:text-sm">
+              IMPORTANT! THE BOSSES ARE NOT FINISHED, CURRENTLY POLISHING MAIN
+              FUNCTIONALITIES ;))
+            </p>
           </div>
         </div>
 
@@ -361,10 +382,7 @@ export default function BossesPage() {
               ))
             : displayedData.map((boss: any) =>
                 !isSelected[boss._id] ? (
-                  <Card
-                    key={boss._id}
-                    className="flex flex-col justify-between"
-                  >
+                  <Card key={boss._id} className="flex flex-col">
                     <CardHeader>
                       <CardTitle className="text-xl font-bold">
                         {boss.name}
@@ -390,17 +408,19 @@ export default function BossesPage() {
                         {boss.location}
                       </span>
                     </CardContent>
-                    <CardContent className="flex justify-end">
-                      {isRateLimited ? (
-                        <Spinner size="small" />
-                      ) : showSelectedOnly ? (
+                    <CardContent className="flex h-full items-end justify-end">
+                      {showSelectedOnly ? (
                         <Button
                           className="hover:invert"
                           variant="outline"
                           size="icon"
                           onClick={() => toggleDeleted(boss.id, boss.name)}
                         >
-                          <X className="h-4 w-4" />
+                          {isRateLimited || isRequesting ? (
+                            <Spinner size="small" />
+                          ) : (
+                            <X className="h-4 w-4" />
+                          )}
                         </Button>
                       ) : (
                         <Button
@@ -409,7 +429,11 @@ export default function BossesPage() {
                           size="icon"
                           onClick={() => toggleSelected(boss._id, boss.name)}
                         >
-                          <Check className="h-4 w-4" />
+                          {isRateLimited || isRequesting ? (
+                            <Spinner size="small" />
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
                         </Button>
                       )}
                     </CardContent>
