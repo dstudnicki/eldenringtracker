@@ -19,7 +19,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown, Rotate3D, X } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -77,6 +77,7 @@ export default function BossesPage() {
 
   const dataLocations = data.map((boss) => boss.region);
   const dataBosses = data.map((boss) => boss.name);
+  console.log(selectedBosses.length);
 
   // Function to remove duplicates from array
   const filterDuplicates = (a: any[]) => {
@@ -184,6 +185,34 @@ export default function BossesPage() {
     } catch (error) {
       console.error("Error deleting boss:", error);
       toast.error("Failed to delete boss");
+    }
+  };
+
+  const resetSelectedBosses = async () => {
+    try {
+      const response = await fetch(`${currentEnv}/api/selectedBosses`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userId}`,
+        },
+        body: JSON.stringify({ reset: true }),
+      });
+      setIsSelected({});
+      setIsRequesting(true);
+
+      if (!response.ok) {
+        throw new Error("Failed to reset all bosses");
+      }
+      await fetchSelectedBosses();
+      setIsRequesting(false);
+
+      toast(`Successfully removed all bosses`, {
+        description: `${date.dayName}, ${date.month} ${date.day}, ${date.year} at ${date.hour}`,
+      });
+    } catch (error) {
+      console.error("Error deleting all boss:", error);
+      toast.error("Failed to delete bosses");
     }
   };
 
@@ -355,14 +384,19 @@ export default function BossesPage() {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="mt-2 flex md:mt-0">
+          <div className="mt-2 flex items-center space-x-4 md:mt-0">
             <Button variant="outline" onClick={handleToggleView}>
               {showSelectedOnly ? "View All Bosses" : "View Selected Bosses"}
             </Button>
-            <p className="ms-2 flex items-center text-xs sm:text-sm">
-              IMPORTANT! THE BOSSES ARE NOT FINISHED, CURRENTLY POLISHING MAIN
-              FUNCTIONALITIES ;))
-            </p>
+            {showSelectedOnly && selectedBosses.length > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={resetSelectedBosses}
+              >
+                Reset Selected Bosses
+              </Button>
+            )}
           </div>
         </div>
 
