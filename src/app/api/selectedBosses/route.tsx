@@ -18,8 +18,15 @@ export async function GET() {
     );
   }
 
+  interface User {
+    name: string;
+    email: string;
+    image: string;
+    id: string;
+  }
+
   const session = await getServerSession(authOptions);
-  const userId = (session?.user as any).id;
+  const userId = (session?.user as User).id;
 
   try {
     await client.connect();
@@ -53,10 +60,17 @@ export async function DELETE(request: Request) {
     );
   }
 
+  interface User {
+    name: string;
+    email: string;
+    image: string;
+    id: string;
+  }
+
   const { id } = await request.json();
   const session = await getServerSession(authOptions);
 
-  const userId = (session?.user as any).id;
+  const userId = (session?.user as User).id;
   if (!isValidObjectId(id) || !userId) {
     return NextResponse.json({ message: "Invalid ID format" }, { status: 400 });
   }
@@ -96,10 +110,17 @@ export async function PATCH(request: Request) {
     );
   }
 
+  interface User {
+    name: string;
+    email: string;
+    image: string;
+    id: string;
+  }
+
   const { reset } = await request.json();
   const session = await getServerSession(authOptions);
 
-  const userId = (session?.user as any).id;
+  const userId = (session?.user as User).id;
   if (!userId) {
     return NextResponse.json({ message: "Invalid User ID" }, { status: 400 });
   }

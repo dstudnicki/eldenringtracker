@@ -26,11 +26,14 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function BossesPage() {
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-  const currentEnv =
-    process.env.NODE_ENV === "development" ? "http://localhost:3000" : baseURL;
+interface User {
+  name: string;
+  email: string;
+  image: string;
+  id: string;
+}
 
+export default function BossesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const regionValue = searchParams.get("region");
@@ -47,7 +50,7 @@ export default function BossesPage() {
   };
 
   const { data: session } = useSession();
-  const userId = session && session.user ? (session?.user as any).id : null;
+  const userId = session && session.user ? (session?.user as User).id : null;
 
   const [data, setData] = useState<
     {
@@ -76,8 +79,7 @@ export default function BossesPage() {
   const [isRequesting, setIsRequesting] = useState(false);
 
   const dataLocations = data.map((boss) => boss.region);
-  const dataBosses = data.map((boss) => boss.name);
-  console.log(selectedBosses.length);
+  const dataBossesNames = data.map((boss) => boss.name);
 
   // Function to remove duplicates from array
   const filterDuplicates = (a: any[]) => {
@@ -91,7 +93,7 @@ export default function BossesPage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${currentEnv}/api/bosses`, {
+      const response = await fetch("api/bosses", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userId}`,
@@ -108,7 +110,7 @@ export default function BossesPage() {
 
   const fetchSelectedBosses = async () => {
     try {
-      const response = await fetch(`${currentEnv}/api/selectedBosses`, {
+      const response = await fetch("/api/selectedBosses", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userId}`,
@@ -129,7 +131,7 @@ export default function BossesPage() {
     }
 
     try {
-      const response = await fetch(`${currentEnv}/api/bosses`, {
+      const response = await fetch("api/bosses", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -162,7 +164,7 @@ export default function BossesPage() {
   // Function to delete selected bosses
   const toggleDeleted = async (id: string, name: string) => {
     try {
-      const response = await fetch(`${currentEnv}/api/selectedBosses`, {
+      const response = await fetch("/api/selectedBosses", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -190,7 +192,7 @@ export default function BossesPage() {
 
   const resetSelectedBosses = async () => {
     try {
-      const response = await fetch(`${currentEnv}/api/selectedBosses`, {
+      const response = await fetch("api/selectedBosses", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -268,14 +270,14 @@ export default function BossesPage() {
   useEffect(() => {
     if (bossValue) {
       const formattedBoss = bossValue.replace(/-/g, " ");
-      const isValidBoss = dataBosses.some(
+      const isValidBoss = dataBossesNames.some(
         (boss: string) => boss.toLowerCase() === formattedBoss.toLowerCase(),
       );
       if (!isValidBoss) {
         router.push("/bosses");
       }
     }
-  }, [bossValue, router, dataBosses]);
+  }, [bossValue, router, dataBossesNames]);
 
   // Function to handle toggle view
   const handleToggleView = () => {
@@ -287,6 +289,13 @@ export default function BossesPage() {
     fetchData();
     fetchSelectedBosses();
   }, []);
+
+  useEffect(() => {
+    if (showSelectedOnly && selectedBosses.length === 0) {
+      setShowSelectedOnly(false);
+      router.push(`/bosses`);
+    }
+  }, [selectedBosses, showSelectedOnly, router]);
 
   // If showSelectedOnly is true, display selected bosses, otherwise display filtered data
   const displayedData = showSelectedOnly ? selectedBosses : showFilteredData();
@@ -348,7 +357,7 @@ export default function BossesPage() {
                   aria-expanded={openBosses}
                 >
                   {bossValue
-                    ? dataBosses.find(
+                    ? dataBossesNames.find(
                         (boss) => boss.replace(/ /g, "-") === bossValue,
                       ) || "Filter by boss..." // Fallback if not found
                     : "Filter by boss..."}
@@ -361,7 +370,7 @@ export default function BossesPage() {
                   <CommandList>
                     <CommandEmpty>No boss found.</CommandEmpty>
                     <CommandGroup>
-                      {dataBosses.map((boss) => (
+                      {dataBossesNames.map((boss) => (
                         <CommandItem
                           key={boss}
                           value={boss}
@@ -414,9 +423,9 @@ export default function BossesPage() {
                   </div>
                 </div>
               ))
-            : displayedData.map((boss: any) =>
+            : displayedData.map((boss: any, index) =>
                 !isSelected[boss._id] ? (
-                  <Card key={boss._id} className="flex flex-col">
+                  <Card key={index} className="flex flex-col">
                     <CardHeader>
                       <CardTitle className="text-xl font-bold">
                         {boss.name}
