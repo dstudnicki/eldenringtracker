@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
+import Link from "next/link";
 
 interface User {
   name: string;
@@ -425,62 +426,64 @@ export default function BossesPage() {
               ))
             : displayedData.map((boss: any, index) =>
                 !isSelected[boss._id] ? (
-                  <Card key={index} className="flex flex-col">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-bold">
-                        {boss.name}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pb-0 text-2xl font-bold">
-                      {boss.image ? (
-                        <Image
-                          className="max-h-40 w-full rounded-md"
-                          width={300}
-                          height={300}
-                          src={boss.image}
-                          alt="Picture of boss"
-                        />
-                      ) : (
-                        <p>No image found.</p>
-                      )}
-                    </CardContent>
-                    <CardContent className="mt-2 text-sm">
-                      <span className="font-bold">Location:</span>
-                      <span className="text-muted-foreground">
-                        {" "}
-                        {boss.location}
-                      </span>
-                    </CardContent>
-                    <CardContent className="flex h-full items-end justify-end">
-                      {showSelectedOnly ? (
-                        <Button
-                          className="hover:invert"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => toggleDeleted(boss.id, boss.name)}
-                        >
-                          {isRateLimited || isRequesting ? (
-                            <Spinner size="small" />
-                          ) : (
-                            <X className="h-4 w-4" />
-                          )}
-                        </Button>
-                      ) : (
-                        <Button
-                          className="hover:invert"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => toggleSelected(boss._id, boss.name)}
-                        >
-                          {isRateLimited || isRequesting ? (
-                            <Spinner size="small" />
-                          ) : (
-                            <Check className="h-4 w-4" />
-                          )}
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <Link href={`./bosses/${boss._id}`} key={index}>
+                    <Card className="flex flex-col">
+                      <CardHeader>
+                        <CardTitle className="text-xl font-bold">
+                          {boss.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pb-0 text-2xl font-bold">
+                        {boss.image ? (
+                          <Image
+                            className="max-h-40 w-full rounded-md"
+                            width={300}
+                            height={300}
+                            src={boss.image}
+                            alt="Picture of boss"
+                          />
+                        ) : (
+                          <p>No image found.</p>
+                        )}
+                      </CardContent>
+                      <CardContent className="mt-2 text-sm">
+                        <span className="font-bold">Location:</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {boss.location}
+                        </span>
+                      </CardContent>
+                      <CardContent className="flex h-full items-end justify-end">
+                        {showSelectedOnly ? (
+                          <Button
+                            className="hover:invert"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => toggleDeleted(boss.id, boss.name)}
+                          >
+                            {isRateLimited || isRequesting ? (
+                              <Spinner size="small" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
+                          </Button>
+                        ) : (
+                          <Button
+                            className="hover:invert"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => toggleSelected(boss._id, boss.name)}
+                          >
+                            {isRateLimited || isRequesting ? (
+                              <Spinner size="small" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ) : null,
               )}
         </section>
