@@ -23,7 +23,7 @@ export default function Home() {
             Make your journey through the Lands Between easier by tracking your
             in game progress.
           </p>
-          <Button className="mt-6 rounded-full p-8 text-xl">
+          <Button className="mt-6 rounded-full p-7 text-xl">
             <Link href={dynamicRoute}>Get Started</Link>
           </Button>
         </div>

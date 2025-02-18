@@ -404,7 +404,7 @@ export default function BossesPage() {
                 size="sm"
                 onClick={resetSelectedBosses}
               >
-                Reset Selected Bosses
+                Remove Selected Bosses
               </Button>
             )}
           </div>
@@ -426,17 +426,17 @@ export default function BossesPage() {
               ))
             : displayedData.map((boss: any, index) =>
                 !isSelected[boss._id] ? (
-                  <Link href={`./bosses/${boss._id}`} key={index}>
-                    <Card className="flex flex-col">
+                  <Card key={index} className="flex flex-col">
+                    <Link href={`./bosses/${boss._id}`}>
                       <CardHeader>
-                        <CardTitle className="text-xl font-bold">
+                        <CardTitle className="text-lg font-bold">
                           {boss.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-0 text-2xl font-bold">
                         {boss.image ? (
                           <Image
-                            className="max-h-40 w-full rounded-md"
+                            className="max-h-[170px] min-h-[170px] w-full rounded-md"
                             width={300}
                             height={300}
                             src={boss.image}
@@ -447,43 +447,43 @@ export default function BossesPage() {
                         )}
                       </CardContent>
                       <CardContent className="mt-2 text-sm">
-                        <span className="font-bold">Location:</span>
+                        <span className="font-bold">Region:</span>
                         <span className="text-muted-foreground">
                           {" "}
-                          {boss.location}
+                          {boss.region}
                         </span>
                       </CardContent>
-                      <CardContent className="flex h-full items-end justify-end">
-                        {showSelectedOnly ? (
-                          <Button
-                            className="hover:invert"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => toggleDeleted(boss.id, boss.name)}
-                          >
-                            {isRateLimited || isRequesting ? (
-                              <Spinner size="small" />
-                            ) : (
-                              <X className="h-4 w-4" />
-                            )}
-                          </Button>
-                        ) : (
-                          <Button
-                            className="hover:invert"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => toggleSelected(boss._id, boss.name)}
-                          >
-                            {isRateLimited || isRequesting ? (
-                              <Spinner size="small" />
-                            ) : (
-                              <Check className="h-4 w-4" />
-                            )}
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
+                    </Link>
+                    <CardContent className="flex h-full items-end justify-end">
+                      {showSelectedOnly ? (
+                        <Button
+                          className="hover:invert"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => toggleDeleted(boss.id, boss.name)}
+                        >
+                          {isRateLimited || isRequesting ? (
+                            <Spinner size="small" />
+                          ) : (
+                            <X className="h-4 w-4" />
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          className="hover:invert"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => toggleSelected(boss._id, boss.name)}
+                        >
+                          {isRateLimited || isRequesting ? (
+                            <Spinner size="small" />
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
                 ) : null,
               )}
         </section>
