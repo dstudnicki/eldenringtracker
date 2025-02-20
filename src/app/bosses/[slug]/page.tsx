@@ -23,6 +23,7 @@ interface Boss {
   image: string;
   location: string;
   region: string;
+  description: string;
 }
 
 export default function Page({ params }: { params: { slug: string } }) {
@@ -58,7 +59,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   }, [params.slug, userId]);
 
   return (
-    <section className="mt-2 flex justify-center">
+    <section className="flex justify-center pb-16">
       {loading ? (
         <div className="mt-2 flex flex-col space-y-3">
           <Skeleton className="mb-2 flex h-5 w-[250px]" />
@@ -85,13 +86,17 @@ export default function Page({ params }: { params: { slug: string } }) {
               <p>No image found.</p>
             )}
           </CardContent>
-          <CardContent className="mt-2 flex flex-col text-sm">
+          <CardContent className="mt-2 space-y-2 text-sm">
+            <div className="max-w-[800px]">
+              <span className="font-bold">Description:</span>
+              <span className="text-muted-foreground"> {data.description}</span>
+            </div>
             <div>
               <span className="font-bold">Region:</span>
               <span className="text-muted-foreground"> {data.region}</span>
             </div>
             <div>
-              <span className="font-bold">Location:</span>
+              <span className="font-bold">Location or Site of Grace:</span>
               <span className="text-muted-foreground"> {data.location}</span>
             </div>
           </CardContent>

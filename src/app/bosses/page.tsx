@@ -28,10 +28,10 @@ import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 
 interface User {
+  id: string;
   name: string;
   email: string;
   image: string;
-  id: string;
 }
 
 export default function BossesPage() {
@@ -427,16 +427,16 @@ export default function BossesPage() {
             : displayedData.map((boss: any, index) =>
                 !isSelected[boss._id] ? (
                   <Card key={index} className="flex flex-col">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold">
+                        {boss.name}
+                      </CardTitle>
+                    </CardHeader>
                     <Link href={`./bosses/${boss._id}`}>
-                      <CardHeader>
-                        <CardTitle className="text-lg font-bold">
-                          {boss.name}
-                        </CardTitle>
-                      </CardHeader>
                       <CardContent className="pb-0 text-2xl font-bold">
                         {boss.image ? (
                           <Image
-                            className="max-h-[170px] min-h-[170px] w-full rounded-md"
+                            className="h-[170px] w-full rounded-md"
                             width={300}
                             height={300}
                             src={boss.image}
@@ -446,14 +446,14 @@ export default function BossesPage() {
                           <p>No image found.</p>
                         )}
                       </CardContent>
-                      <CardContent className="mt-2 text-sm">
-                        <span className="font-bold">Region:</span>
-                        <span className="text-muted-foreground">
-                          {" "}
-                          {boss.region}
-                        </span>
-                      </CardContent>
                     </Link>
+                    <CardContent className="mt-2 text-sm">
+                      <span className="font-bold">Region:</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        {boss.region}
+                      </span>
+                    </CardContent>
                     <CardContent className="flex h-full items-end justify-end">
                       {showSelectedOnly ? (
                         <Button
