@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarNav } from "@/components/sidebar-nav";
 
 export const metadata: Metadata = {
-  title: "Forms",
+  title: "User profile",
   description: "Advanced form example using react-hook-form and Zod.",
 };
 
@@ -27,22 +27,6 @@ interface SettingsLayoutProps {
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
     <>
-      <div className="md:hidden">
-        <Image
-          src="/examples/forms-light.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/forms-dark.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="hidden dark:block"
-        />
-      </div>
       <div className="px-4 xl:container sm:px-8 lg:px-12">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
