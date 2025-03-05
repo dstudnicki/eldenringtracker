@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { ProfileCharacters } from "@/components/profile-characters";
+import ProfileCharacters from "@/components/profile-characters";
 
 export default function SettingsProfilePage() {
   return (
