@@ -51,10 +51,10 @@ export function UserNav() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <Link href="./profile">
+              <Link href="/profile">
                 <DropdownMenuItem>Profile</DropdownMenuItem>
               </Link>
-              <Link href="./profile/characters">
+              <Link href="/profile/characters">
                 <DropdownMenuItem>Characters</DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>

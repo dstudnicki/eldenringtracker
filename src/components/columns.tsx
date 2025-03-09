@@ -72,7 +72,7 @@ export const columns: ColumnDef<Task>[] = [
     accessorKey: "progress",
     header: ({ column }) => <>Progress</>,
     cell: ({ row }) => {
-      return <span>16/165</span>;
+      return <span>{row.getValue("progress")}</span>;
     },
   },
   {

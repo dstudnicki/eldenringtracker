@@ -4,25 +4,15 @@ import { DataTable } from "@/components/data-table";
 export default function ProfileCharacters() {
   const tasks = [
     {
-      name: "John Doe",
+      name: "Default profile",
       status: "in progress",
-      progress: "documentation",
-    },
-    {
-      name: "John Doe",
-      status: "in progress",
-      progress: "documentation",
-    },
-    {
-      name: "John Doe",
-      status: "in progress",
-      progress: "documentation",
+      progress: "16/165",
     },
   ];
 
   return (
     <>
-      <div className="hidden h-full flex-1 flex-col space-y-8 md:flex">
+      <div className="flex h-full flex-1 flex-col space-y-8">
         <DataTable data={tasks} columns={columns} />
       </div>
     </>
