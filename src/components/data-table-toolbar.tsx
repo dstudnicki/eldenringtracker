@@ -4,14 +4,43 @@ import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/data-table-view-options";
+import { useSession } from "next-auth/react";
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
 }
 
 export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  const { data: session } = useSession();
+  const userId = session && session.user ? (session?.user as User).id : null;
+
+  const addCharacterProfile = async () => {
+    try {
+      const response = await fetch("api/someEndpoint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userId}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Failed adding character profile", error);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -36,7 +65,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
-      <Button variant="outline" className="h-8">
+      <Button variant="outline" className="h-8" onClick={() => addCharacterProfile()}>
         <Plus />
       </Button>
     </div>
