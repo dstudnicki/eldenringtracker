@@ -54,6 +54,6 @@ export async function GET(
       { status: 500 },
     );
   } finally {
-    await client.close();
+    if (client) await client.close();
   }
 }

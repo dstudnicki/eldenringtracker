@@ -5,6 +5,13 @@ import { authOptions } from "@/lib/authOptions";
 import { rateLimit } from "@/middleware/rateLimiter";
 import { headers } from "next/headers";
 
+interface User {
+  name: string;
+  email: string;
+  image: string;
+  id: string;
+}
+
 const client = new MongoClient(process.env.MONGODB_URI ?? "");
 const isValidObjectId = (id: string) => /^[a-fA-F0-9]{24}$/.test(id);
 
@@ -16,13 +23,6 @@ export async function GET() {
       { message: "Rate limit exceeded" },
       { status: 429 },
     );
-  }
-
-  interface User {
-    name: string;
-    email: string;
-    image: string;
-    id: string;
   }
 
   const session = await getServerSession(authOptions);
@@ -54,7 +54,7 @@ export async function GET() {
     console.error("Error processing GET request:", error);
     return NextResponse.error();
   } finally {
-    await client.close();
+    if (client) await client.close();
   }
 }
 
@@ -66,13 +66,6 @@ export async function PATCH(request: Request) {
       { message: "Rate limit exceeded" },
       { status: 429 },
     );
-  }
-
-  interface User {
-    name: string;
-    email: string;
-    image: string;
-    id: string;
   }
 
   const { id } = await request.json();
@@ -128,6 +121,6 @@ export async function PATCH(request: Request) {
     console.error("Error processing PATCH request:", error);
     return NextResponse.error();
   } finally {
-    await client.close();
+    if (client) await client.close();
   }
 }

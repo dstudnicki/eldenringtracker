@@ -1,9 +1,9 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { statuses } from "../data/data";
 import { Task } from "../data/schema";
 import { DataTableRowActions } from "./data-table-row-actions";
+import { useState } from "react";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -32,35 +32,45 @@ export const columns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => <>Name</>,
+    header: () => <>Name</>,
     cell: ({ row }) => {
+      const name = row.original.name;
+
+      const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        row.original.name = newName;
+
+        try {
+          await fetch(`/api/characterProfiles`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: newName }),
+          });
+        } catch (error) {
+          console.error("Failed to update name", error);
+        }
+      };
+
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("name")}
-          </span>
+          <input
+            type="text"
+            className="max-w-[500px] truncate bg-inherit font-medium"
+            defaultValue={name}
+            onBlur={handleChange}
+            placeholder="Enter character name..."
+          />
         </div>
       );
     },
   },
   {
     accessorKey: "status",
-    header: ({ column }) => <>Status</>,
+    header: () => <>Status</>,
     cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.getValue("status"),
-      );
-
-      if (!status) {
-        return null;
-      }
-
       return (
         <div className="flex w-[100px] items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{status.label}</span>
+          <span>{row.getValue("status")}</span>
         </div>
       );
     },
@@ -70,7 +80,7 @@ export const columns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: "progress",
-    header: ({ column }) => <>Progress</>,
+    header: () => <>Progress</>,
     cell: ({ row }) => {
       return <span>{row.getValue("progress")}</span>;
     },

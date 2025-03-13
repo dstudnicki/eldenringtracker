@@ -26,12 +26,17 @@ export function DataTableToolbar<TData>({
 
   const addCharacterProfile = async () => {
     try {
-      const response = await fetch("api/someEndpoint", {
+      const response = await fetch("/api/characterProfiles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userId}`,
         },
+        body: JSON.stringify({
+          name: "",
+          status: "In progress",
+          progress: "0/165",
+        }),
       });
 
       if (!response.ok) {
@@ -65,7 +70,11 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
-      <Button variant="outline" className="h-8" onClick={() => addCharacterProfile()}>
+      <Button
+        variant="outline"
+        className="h-8"
+        onClick={() => addCharacterProfile()}
+      >
         <Plus />
       </Button>
     </div>
